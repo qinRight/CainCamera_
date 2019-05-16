@@ -761,8 +761,8 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
                 mBtnShutter.setEnableOpened(true);
             }
             // 人脸检测
-            FaceTracker.getInstance().trackFace(data,
-                    mCameraParam.previewWidth, mCameraParam.previewHeight);
+//            FaceTracker.getInstance().trackFace(data,
+//                    mCameraParam.previewWidth, mCameraParam.previewHeight);
             // 请求刷新
             requestRender();
         }

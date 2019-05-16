@@ -1,7 +1,7 @@
 package com.cgfay.facedetectlibrary.engine;
 
 import com.cgfay.facedetectlibrary.listener.FaceTrackerCallback;
-import com.megvii.facepp.sdk.Facepp;
+//import com.megvii.facepp.sdk.Facepp;
 
 /**
  * 人脸检测参数
@@ -63,7 +63,7 @@ public final class FaceTrackParam {
         enableMultiFace = true;
         minFaceSize = 200;
         detectInterval = 25;
-        trackMode = Facepp.FaceppConfig.DETECTION_MODE_TRACKING;
+//        trackMode = Facepp.FaceppConfig.DETECTION_MODE_TRACKING;
         trackerCallback = null;
     }
 

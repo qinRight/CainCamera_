@@ -140,4 +140,8 @@ public class GLImageDepthBlurFilter extends GLImageFilter {
             GLES30.glDeleteTextures(1, new int[]{mBlurTexture}, 0);
         }
     }
+
+    public void setBlurScaleSize(float value){
+        mBlurScale = value;
+    }
 }

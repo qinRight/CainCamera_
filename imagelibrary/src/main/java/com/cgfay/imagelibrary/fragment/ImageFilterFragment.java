@@ -19,13 +19,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.SeekBar;
 
+import com.cgfay.facedetectlibrary.engine.FaceTracker;
+import com.cgfay.facedetectlibrary.engine.FaceTrackerWithImage;
+import com.cgfay.facedetectlibrary.listener.FaceTrackerCallback;
 import com.cgfay.filterlibrary.glfilter.resource.FilterHelper;
 import com.cgfay.filterlibrary.glfilter.resource.bean.ResourceData;
+import com.cgfay.filterlibrary.manager.ImageParam;
 import com.cgfay.filterlibrary.widget.GLImageSurfaceView;
 import com.cgfay.imagelibrary.R;
 import com.cgfay.imagelibrary.adapter.ImageFilterAdapter;
 import com.cgfay.utilslibrary.utils.BitmapUtils;
+import com.tzutalin.dlib.Constants;
 
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -93,6 +99,9 @@ public class ImageFilterFragment extends Fragment implements View.OnClickListene
         mCainImageView = (GLImageSurfaceView) view.findViewById(R.id.glImageView);
         if (mBitmap != null) {
             mCainImageView.setBitmap(mBitmap);
+            Constants.checkFaceModelState(mActivity);
+            FaceTrackerWithImage.getInstance().initTracker();
+            FaceTrackerWithImage.getInstance().trackFace(mBitmap);
         }
         // 滤镜内容框
         mLayoutFilterContent = (FrameLayout) view.findViewById(R.id.layout_filter_content);
@@ -109,6 +118,30 @@ public class ImageFilterFragment extends Fragment implements View.OnClickListene
         mBtnSetting = (Button) view.findViewById(R.id.btn_setting);
         mBtnSetting.setOnClickListener(this);
         showFilters();
+        SeekBar mseekbar = view.findViewById(R.id.filterseekbar);
+        mseekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                ImageParam.getInstance().beauty.faceLift = seekBar.getProgress()/100.f;
+                mCainImageView.queueEvent(new Runnable() {
+                    @Override
+                    public void run() {
+                        mCainImageView.requestRender();
+                    }
+                });
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
     }
 
     @Override
@@ -187,7 +220,7 @@ public class ImageFilterFragment extends Fragment implements View.OnClickListene
                 @Override
                 public void onFilterChanged(final ResourceData resourceData) {
                     if (mCainImageView != null) {
-                        mCainImageView.setFilter(resourceData);
+                        mCainImageView.setNormalFilter(resourceData);
                     }
                 }
             });

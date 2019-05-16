@@ -1,6 +1,7 @@
 package com.cgfay.filterlibrary.glfilter.base;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.opengl.GLES30;
 
 import com.cgfay.filterlibrary.glfilter.utils.OpenGLUtils;
@@ -63,5 +64,12 @@ public class GLImage512LookupTableFilter extends GLImageFilter {
         }
         mStrength = opacity;
         setFloat(mStrengthHandle, mStrength);
+    }
+
+    public void setLookupBitmap(Bitmap bitmap){
+        if (mCurveTexture != OpenGLUtils.GL_NOT_INIT){
+            GLES30.glDeleteTextures(1, new int[]{ mCurveTexture }, 0);
+        }
+        mCurveTexture = OpenGLUtils.createTexture(bitmap);
     }
 }

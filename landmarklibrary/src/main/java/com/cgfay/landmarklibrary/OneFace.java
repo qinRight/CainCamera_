@@ -24,6 +24,11 @@ public class OneFace {
     // 顶点坐标
     public float[] vertexPoints;
 
+    public int mLeft;
+    public int mTop;
+    public int mRight;
+    public int mBottom;
+
     @Override
     protected OneFace clone() {
         OneFace copy = new OneFace();
