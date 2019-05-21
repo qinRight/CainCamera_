@@ -3,7 +3,13 @@
     package="com.cgfay.imagelibrary">
 
     <application>
-        <activity android:name=".activity.ImageEditActivity"/>
+        <activity android:name=".activity.ImageEditActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

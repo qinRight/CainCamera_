@@ -15,6 +15,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -99,9 +100,7 @@ public class ImageFilterFragment extends Fragment implements View.OnClickListene
         mCainImageView = (GLImageSurfaceView) view.findViewById(R.id.glImageView);
         if (mBitmap != null) {
             mCainImageView.setBitmap(mBitmap);
-            Constants.checkFaceModelState(mActivity);
-            FaceTrackerWithImage.getInstance().initTracker();
-            FaceTrackerWithImage.getInstance().trackFace(mBitmap);
+            FaceTrackerWithImage.getInstance().trackFaceWithBitmap(mActivity, mBitmap);
         }
         // 滤镜内容框
         mLayoutFilterContent = (FrameLayout) view.findViewById(R.id.layout_filter_content);
@@ -118,17 +117,28 @@ public class ImageFilterFragment extends Fragment implements View.OnClickListene
         mBtnSetting = (Button) view.findViewById(R.id.btn_setting);
         mBtnSetting.setOnClickListener(this);
         showFilters();
+        Button comparebutton = view.findViewById(R.id.comparebutton);
+        comparebutton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN){
+                    ImageParam.getInstance().showCompare = true;
+                    mCainImageView.startNewRender();
+                }else if (motionEvent.getAction() == MotionEvent.ACTION_MOVE){
+
+                }else{
+                    ImageParam.getInstance().showCompare = false;
+                    mCainImageView.startNewRender();
+                }
+                return true;
+            }
+        });
         SeekBar mseekbar = view.findViewById(R.id.filterseekbar);
         mseekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 ImageParam.getInstance().beauty.faceLift = seekBar.getProgress()/100.f;
-                mCainImageView.queueEvent(new Runnable() {
-                    @Override
-                    public void run() {
-                        mCainImageView.requestRender();
-                    }
-                });
+                mCainImageView.startNewRender();
             }
 
             @Override

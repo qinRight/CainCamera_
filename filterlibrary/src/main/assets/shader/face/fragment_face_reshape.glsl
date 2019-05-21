@@ -3,7 +3,7 @@ varying vec2 textureCoordinate;
 uniform sampler2D inputTexture;
 
 // 图像笛卡尔坐标系的关键点，也就是纹理坐标乘以宽高得到
-uniform vec2 cartesianPoints[106];
+uniform vec2 cartesianPoints[68];
 
 #define INDEX_FACE_LIFT     0   // 瘦脸
 #define INDEX_FACE_SHAVE    1   // 削脸
@@ -30,6 +30,54 @@ uniform int textureHeight;
 // 是否允许美型处理，存在人脸时为1，没有人脸时为0
 uniform int enableReshape;
 
+
+#define MAX_CONTOUR_POINT_COUNT 5
+
+ uniform highp float slimRadius;
+ uniform highp float aspectRatio;
+
+ vec2 leftContourPoints[MAX_CONTOUR_POINT_COUNT];
+ vec2 rightContourPoints[MAX_CONTOUR_POINT_COUNT];
+ float deltaArray[MAX_CONTOUR_POINT_COUNT];
+int arraySize;
+
+ vec2 faceliftNew(vec2 currentCoordinate){
+     int positionToUse = currentCoordinate;
+     for(int i=0;i< 5;i++){
+         leftContourPoints[i] = cartesianPoints[i+3];
+         rightContourPoints[i] = cartesianPoints[15-i];
+         deltaArray[i] = reshapeIntensity[INDEX_FACE_LIFT];
+     }
+     arraySize = 2*MAX_CONTOUR_POINT_COUNT;
+    for(int i = 0; i < arraySize; i++)
+     {
+         positionToUse = warpPositionToUse(positionToUse, leftContourPoints, rightContourPoints, radius, deltaArray[i], aspectRatio);
+         positionToUse = warpPositionToUse(positionToUse, rightContourPoints, leftContourPoints, radius, deltaArray[i], aspectRatio);
+     }
+     return positionToUse;
+ }
+
+vec2 warpPositionToUse(vec2 currentPoint, vec2 contourPointA,  vec2 contourPointB, float radius, float delta, float aspectRatio)
+{
+vec2 positionToUse = currentPoint;
+
+vec2 currentPointToUse = vec2(currentPoint.x, currentPoint.y * aspectRatio + 0.5 - 0.5 * aspectRatio);
+vec2 contourPointAToUse = vec2(contourPointA.x, contourPointA.y * aspectRatio + 0.5 - 0.5 * aspectRatio);
+
+float r = distance(currentPointToUse, contourPointAToUse);
+if(r < radius)
+{
+vec2 dir = normalize(contourPointB - contourPointA);
+float dist = radius * radius - r * r;
+float alpha = dist / (dist + (r-delta) * (r-delta));
+alpha = alpha * alpha;
+
+positionToUse = positionToUse - alpha * delta * dir;
+
+}
+
+return positionToUse;
+}
 // 曲线形变处理
 vec2 curveWarp(vec2 textureCoord, vec2 originPosition, vec2 targetPosition, float radius)
 {
@@ -67,24 +115,24 @@ vec2 faceLift(vec2 currentCoordinate, float faceLength)
     vec2 coordinate = currentCoordinate;
     vec2 currentPoint = vec2(0.0);
     vec2 destPoint = vec2(0.0);
-    float faceLiftScale = reshapeIntensity[INDEX_FACE_LIFT] * 0.05;
+    float faceLiftScale = reshapeIntensity[INDEX_FACE_LIFT] * facescaleValue;
     float radius = faceLength;
 
     currentPoint = cartesianPoints[3];
-    destPoint = currentPoint + (cartesianPoints[44] - currentPoint) * faceLiftScale;
+    destPoint = currentPoint + (cartesianPoints[30] - currentPoint) * faceLiftScale;
     coordinate = curveWarp(coordinate, currentPoint, destPoint, radius);
 
-    currentPoint = cartesianPoints[29];
-    destPoint = currentPoint + (cartesianPoints[44] - currentPoint) * faceLiftScale;
+    currentPoint = cartesianPoints[15];
+    destPoint = currentPoint + (cartesianPoints[30] - currentPoint) * faceLiftScale;
     coordinate = curveWarp(coordinate, currentPoint, destPoint, radius);
 
     radius = faceLength * 0.8;
-    currentPoint = cartesianPoints[10];
-    destPoint = currentPoint + (cartesianPoints[46] - currentPoint) * (faceLiftScale * 0.6);
+    currentPoint = cartesianPoints[5];
+    destPoint = currentPoint + (cartesianPoints[34] - currentPoint) * (faceLiftScale );
     coordinate = curveWarp(coordinate, currentPoint, destPoint, radius);
 
-    currentPoint = cartesianPoints[22];
-    destPoint = currentPoint + (cartesianPoints[46] - currentPoint) * (faceLiftScale * 0.6);
+    currentPoint = cartesianPoints[13];
+    destPoint = currentPoint + (cartesianPoints[34] - currentPoint) * (faceLiftScale );
     coordinate = curveWarp(coordinate, currentPoint, destPoint, radius);
 
     return coordinate;
@@ -140,10 +188,11 @@ void main()
     // 将坐标转成图像大小，这里是为了方便计算
     coordinate = textureCoordinate * vec2(float(textureWidth), float(textureHeight));
 
-    float eyeDistance = distance(cartesianPoints[74], cartesianPoints[77]); // 两个瞳孔的距离
+    float eyeDistance = distance(cartesianPoints[42], cartesianPoints[47]); // 两个瞳孔的距离
 
     // 瘦脸
-    coordinate = faceLift(coordinate, eyeDistance);
+    faceliftNew(coordinate);
+    // coordinate = faceLift(coordinate, eyeDistance);
 
     // 削脸
     coordinate = faceShave(coordinate, eyeDistance);

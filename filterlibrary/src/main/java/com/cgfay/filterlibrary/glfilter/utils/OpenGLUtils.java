@@ -130,14 +130,14 @@ public class OpenGLUtils {
         }
 
         int program = GLES30.glCreateProgram();
-        checkGlError("glCreateProgram");
+//        checkGlError("glCreateProgram");
         if (program == 0) {
             Log.e(TAG, "Could not create program");
         }
         GLES30.glAttachShader(program, vertexShader);
-        checkGlError("glAttachShader");
+//        checkGlError("glAttachShader");
         GLES30.glAttachShader(program, pixelShader);
-        checkGlError("glAttachShader");
+//        checkGlError("glAttachShader");
         GLES30.glLinkProgram(program);
         int[] linkStatus = new int[1];
         GLES30.glGetProgramiv(program, GLES30.GL_LINK_STATUS, linkStatus, 0);
@@ -158,7 +158,7 @@ public class OpenGLUtils {
      */
     public static int loadShader(int shaderType, String source) {
         int shader = GLES30.glCreateShader(shaderType);
-        checkGlError("glCreateShader type=" + shaderType);
+//        checkGlError("glCreateShader type=" + shaderType);
         GLES30.glShaderSource(shader, source);
         GLES30.glCompileShader(shader);
         int[] compiled = new int[1];
@@ -181,7 +181,7 @@ public class OpenGLUtils {
         if (error != GLES30.GL_NO_ERROR) {
             String msg = op + ": glError 0x" + Integer.toHexString(error);
             Log.e(TAG, msg);
-            throw new RuntimeException(msg);
+//            throw new RuntimeException(msg);
         }
     }
 
@@ -301,7 +301,7 @@ public class OpenGLUtils {
         if (bitmap != null && !bitmap.isRecycled()) {
             //生成纹理
             GLES30.glGenTextures(1, texture, 0);
-            checkGlError("glGenTexture");
+//            checkGlError("glGenTexture");
             //生成纹理
             GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, texture[0]);
             //设置缩小过滤为使用纹理中坐标最接近的一个像素的颜色作为需要绘制的像素颜色

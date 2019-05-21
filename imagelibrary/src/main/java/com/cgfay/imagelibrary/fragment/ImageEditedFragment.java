@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -318,7 +319,11 @@ public class ImageEditedFragment extends Fragment implements View.OnClickListene
      */
     public void setImagePath(String path) {
         mImagePath = path;
-        mBitmap = BitmapUtils.getBitmapFromFile(new File(mImagePath), 0, 0, true);
+        mBitmap = BitmapFactory.decodeResource(mActivity.getResources(),R.drawable.yangmi);//BitmapUtils.getBitmapFromFile(new File(mImagePath), 0, 0, true);
+    }
+
+    public void setImageBItmap(Bitmap bitmap) {
+        mBitmap = bitmap;
     }
 
     /**

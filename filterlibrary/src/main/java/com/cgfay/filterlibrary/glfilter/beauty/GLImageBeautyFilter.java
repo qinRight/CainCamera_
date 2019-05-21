@@ -2,9 +2,8 @@ package com.cgfay.filterlibrary.glfilter.beauty;
 
 import android.content.Context;
 
-import com.cgfay.filterlibrary.glfilter.base.GLImageGaussianBlurFilter;
-import com.cgfay.filterlibrary.glfilter.adjust.GLImageSharpenFilter;
 import com.cgfay.filterlibrary.glfilter.base.GLImageFilter;
+import com.cgfay.filterlibrary.glfilter.base.GLImageGaussianBlurFilter;
 import com.cgfay.filterlibrary.glfilter.beauty.bean.BeautyParam;
 import com.cgfay.filterlibrary.glfilter.beauty.bean.IBeautify;
 import com.cgfay.filterlibrary.glfilter.utils.OpenGLUtils;

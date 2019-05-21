@@ -36,15 +36,6 @@ public class GLImageSurfaceView extends GLSurfaceView implements GLSurfaceView.R
 
     // 输入纹理
     protected int mInputTexture = OpenGLUtils.GL_NOT_TEXTURE;
-    // 图片输入滤镜
-//    protected GLImageInputFilter mInputFilter;
-    // 颜色滤镜
-//    protected GLImageFilter mColorFilter;
-//    protected GLImageFaceReshapeFilter mFaceReshapeFilter;
-    // 显示输出
-//    protected GLImageFilter mDisplayFilter;
-//    private FloatBuffer mVertexBuffer;
-//    private FloatBuffer mTextureBuffer;
 
     // 输入纹理大小
     protected int mTextureWidth;
@@ -55,9 +46,6 @@ public class GLImageSurfaceView extends GLSurfaceView implements GLSurfaceView.R
 
     // 输入图片
     private Bitmap mBitmap;
-
-    // 记录当前滤镜数据
-    private ResourceData mResourceData;
 
     // UI线程Handler，主要用于更新UI等
     protected Handler mMainHandler;
@@ -72,19 +60,16 @@ public class GLImageSurfaceView extends GLSurfaceView implements GLSurfaceView.R
         setRenderer(this);
         setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
         mMainHandler = new Handler(Looper.getMainLooper());
-//        mVertexBuffer = OpenGLUtils.createFloatBuffer(TextureRotationUtils.CubeVertices);
-//        mTextureBuffer = OpenGLUtils.createFloatBuffer(TextureRotationUtils.TextureVertices);
     }
 
     @Override
     public void onPause() {
         super.onPause();
         RenderImageManager.getInstance().release();
-        mInputTexture = OpenGLUtils.GL_NOT_TEXTURE;
-//        mColorFilter = null;
-//        mFaceReshapeFilter = null;
-//        mDisplayFilter = null;
-//        mInputFilter = null;
+        if (mInputTexture != OpenGLUtils.GL_NOT_TEXTURE) {
+            OpenGLUtils.deleteTexture(mInputTexture);
+            mInputTexture = OpenGLUtils.GL_NOT_TEXTURE;
+        }
     }
 
     @Override
@@ -110,35 +95,12 @@ public class GLImageSurfaceView extends GLSurfaceView implements GLSurfaceView.R
         }
         RenderImageManager.getInstance().setTextureSize(mTextureWidth,mTextureHeight);
         RenderImageManager.getInstance().setDisplaySize(mViewWidth,mViewHeight);
-        onFilterSizeChanged();
     }
 
     /**
      * 初始化滤镜
      */
     private void initFilters() {
-//        if (mInputFilter == null) {
-//            mInputFilter = new GLImageInputFilter(getContext());
-//        } else {
-//            mInputFilter.initProgramHandle();
-//        }
-//        if (mColorFilter == null && mResourceData != null) {
-//            createColorFilter(mResourceData);
-//        } else if (mColorFilter != null) {
-//            mColorFilter.initProgramHandle();
-//        }
-//
-//        if (mFaceReshapeFilter == null) {
-//            createFaceReshapeFilter();
-//        } else if (mFaceReshapeFilter != null) {
-//            mFaceReshapeFilter.initProgramHandle();
-//        }
-//
-//        if (mDisplayFilter == null) {
-//            mDisplayFilter = new GLImageFilter(getContext());
-//        } else {
-//            mDisplayFilter.initProgramHandle();
-//        }
         RenderImageManager.getInstance().init(getContext());
         if (mBitmap != null) {
             mMainHandler.post(new Runnable() {
@@ -150,14 +112,6 @@ public class GLImageSurfaceView extends GLSurfaceView implements GLSurfaceView.R
         }
     }
 
-    /**
-     * 滤镜大小发生变化
-     */
-    private void onFilterSizeChanged() {
-
-
-    }
-
     @Override
     public void onDrawFrame(GL10 gl) {
         GLES30.glClearColor(0,0, 0, 0);
@@ -165,8 +119,6 @@ public class GLImageSurfaceView extends GLSurfaceView implements GLSurfaceView.R
 
         int currentTexture = mInputTexture;
         RenderImageManager.getInstance().drawFrame(currentTexture);
-
-//        mDisplayFilter.drawFrame(currentTexture, mVertexBuffer, mTextureBuffer);
     }
 
     /**
@@ -174,11 +126,9 @@ public class GLImageSurfaceView extends GLSurfaceView implements GLSurfaceView.R
      * @param resourceData
      */
     public void setNormalFilter(final ResourceData resourceData) {
-        mResourceData = resourceData;
         queueEvent(new Runnable() {
             @Override
             public void run() {
-//                RenderImageManager.getInstance().release();
                 createColorFilter(resourceData);
                 requestRender();
             }
@@ -189,7 +139,6 @@ public class GLImageSurfaceView extends GLSurfaceView implements GLSurfaceView.R
      * @param bitmap
      */
     public void setLookupFilter(final Bitmap bitmap) {
-        mResourceData = null;
         queueEvent(new Runnable() {
             @Override
             public void run() {
@@ -277,6 +226,15 @@ public class GLImageSurfaceView extends GLSurfaceView implements GLSurfaceView.R
         layoutParams.height = mViewHeight;
         setLayoutParams(layoutParams);
         RenderImageManager.getInstance().setDisplaySize(mViewWidth,mViewHeight);
+    }
+
+    public void startNewRender(){
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                requestRender();
+            }
+        });
     }
 
     /**

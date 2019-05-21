@@ -1,5 +1,6 @@
 package com.cgfay.imagelibrary.activity;
 
+import android.graphics.BitmapFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.WindowManager;
@@ -19,7 +20,7 @@ public class ImageEditActivity extends AppCompatActivity {
         setContentView(R.layout.activity_image_edit);
         if (null == savedInstanceState) {
             ImageEditedFragment fragment = new ImageEditedFragment();
-            fragment.setImagePath(getIntent().getStringExtra(PATH));
+            fragment.setImageBItmap(BitmapFactory.decodeResource(getResources(),R.drawable.yangmi));
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.container, fragment, FRAGMENT_IMAGE)

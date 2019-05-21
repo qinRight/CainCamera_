@@ -50,6 +50,7 @@ public final class LandmarkEngine {
      * @param size
      */
     public void setFaceSize(int size) {
+
         synchronized (mSyncFence) {
             // 剔除脏数据，有可能在前一次检测的人脸多余当前人脸
             if (mFaceArrays.size() > size) {

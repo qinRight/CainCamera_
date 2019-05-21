@@ -1,9 +1,6 @@
 package com.tzutalin.dlib;
 
-import android.content.Context;
 import android.os.Environment;
-
-import com.cgfay.facedetectlibrary.R;
 
 import java.io.File;
 
@@ -20,16 +17,8 @@ public final class Constants {
      * @return default face shape model path
      */
     public static String getFaceShapeModelPath() {
-
         File sdcard = Environment.getExternalStorageDirectory();
-        String targetPath = sdcard.getAbsolutePath() + File.separator + "sixeightfacelandmarks.dat";
+        String targetPath = sdcard.getAbsolutePath() + File.separator + "shape_predictor_68_face_landmarks.dat";
         return targetPath;
-    }
-
-    public static void checkFaceModelState(Context context){
-        final String targetPath = Constants.getFaceShapeModelPath();
-        if (!new File(targetPath).exists()) {
-            FileUtils.copyFileFromAssetToOthers(context, "sixeightfacelandmarks.dat", targetPath);
-        }
     }
 }

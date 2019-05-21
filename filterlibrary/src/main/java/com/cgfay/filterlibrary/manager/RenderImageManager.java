@@ -18,6 +18,7 @@ import com.cgfay.filterlibrary.glfilter.beauty.GLImageBeautyFilter;
 import com.cgfay.filterlibrary.glfilter.beauty.bean.IBeautify;
 import com.cgfay.filterlibrary.glfilter.color.GLImageDynamicColorFilter;
 import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColor;
+import com.cgfay.filterlibrary.glfilter.face.GLImageFacePointsFilter;
 import com.cgfay.filterlibrary.glfilter.face.GLImageFaceReshapeFilter;
 import com.cgfay.filterlibrary.glfilter.makeup.GLImageMakeupFilter;
 import com.cgfay.filterlibrary.glfilter.makeup.bean.DynamicMakeup;
@@ -57,8 +58,6 @@ public final class RenderImageManager {
     private FloatBuffer mVertexBuffer;
     private FloatBuffer mTextureBuffer;
     // 用于显示裁剪的纹理顶点缓冲
-//    private FloatBuffer mDisplayVertexBuffer;
-//    private FloatBuffer mDisplayTextureBuffer;
 
     // 视图宽高
     private int mViewWidth, mViewHeight;
@@ -115,14 +114,6 @@ public final class RenderImageManager {
             mTextureBuffer.clear();
             mTextureBuffer = null;
         }
-//        if (mDisplayVertexBuffer != null) {
-//            mDisplayVertexBuffer.clear();
-//            mDisplayVertexBuffer = null;
-//        }
-//        if (mDisplayTextureBuffer != null) {
-//            mDisplayTextureBuffer.clear();
-//            mDisplayTextureBuffer = null;
-//        }
     }
 
     /**
@@ -130,8 +121,6 @@ public final class RenderImageManager {
      */
     private void initBuffers() {
         releaseBuffers();
-//        mDisplayVertexBuffer = OpenGLUtils.createFloatBuffer(TextureRotationUtils.CubeVertices);
-//        mDisplayTextureBuffer = OpenGLUtils.createFloatBuffer(TextureRotationUtils.TextureVertices);
         mVertexBuffer = OpenGLUtils.createFloatBuffer(TextureRotationUtils.CubeVertices);
         mTextureBuffer = OpenGLUtils.createFloatBuffer(TextureRotationUtils.TextureVertices);
     }
@@ -161,7 +150,7 @@ public final class RenderImageManager {
         // 显示输出
         mFilterArrays.put(RenderIndex.DisplayIndex, new GLImageFilter(context));
         // 人脸关键点调试
-//        mFilterArrays.put(RenderIndex.FacePointIndex, new GLImageFacePointsFilter(context));
+        mFilterArrays.put(RenderIndex.FacePointIndex, new GLImageFacePointsFilter(context));
     }
 
     /**
@@ -287,13 +276,9 @@ public final class RenderImageManager {
                 || mFilterArrays.get(RenderIndex.DisplayIndex) == null) {
             return currentTexture;
         }
-//        if (mFilterArrays.get(RenderIndex.PhotoIndex) instanceof GLImageOESInputFilter) {
-//            ((GLImageOESInputFilter)mFilterArrays.get(RenderIndex.PhotoIndex)).setTextureTransformMatrix(mMatrix);
-//        }
-        currentTexture = mFilterArrays.get(RenderIndex.PhotoIndex)
-                .drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
+        currentTexture = mFilterArrays.get(RenderIndex.PhotoIndex).drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
         // 如果处于对比状态，不做处理
-        if (!mCameraParam.showCompare) {
+        if (!mCameraParam.showCompare ) {
             // 美颜滤镜
             if (mFilterArrays.get(RenderIndex.BeautyIndex) != null) {
                 if (mFilterArrays.get(RenderIndex.BeautyIndex) instanceof IBeautify
@@ -304,7 +289,7 @@ public final class RenderImageManager {
             }
 
             // 彩妆滤镜
-            if (mFilterArrays.get(RenderIndex.MakeupIndex) != null) {
+            if (mFilterArrays.get(RenderIndex.MakeupIndex) != null ) {
                 currentTexture = mFilterArrays.get(RenderIndex.MakeupIndex).drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
             }
 
@@ -356,22 +341,16 @@ public final class RenderImageManager {
             }
         }
 
+        if (mFilterArrays.get(RenderIndex.FacePointIndex) != null) {
+            if (LandmarkEngine.getInstance().hasFace()) {
+                currentTexture = mFilterArrays.get(RenderIndex.FacePointIndex).drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
+            }
+        }
         // 显示输出，需要调整视口大小
         mFilterArrays.get(RenderIndex.DisplayIndex).drawFrame(currentTexture, mVertexBuffer, mTextureBuffer);
 
-        return currentTexture;
-    }
 
-    /**
-     * 绘制调试用的人脸关键点
-     * @param mCurrentTexture
-     */
-    public void drawFacePoint(int mCurrentTexture) {
-        if (mFilterArrays.get(RenderIndex.FacePointIndex) != null) {
-            if (mCameraParam.drawFacePoints && LandmarkEngine.getInstance().hasFace()) {
-                mFilterArrays.get(RenderIndex.FacePointIndex).drawFrame(mCurrentTexture, mVertexBuffer, mTextureBuffer);
-            }
-        }
+        return currentTexture;
     }
 
     /**

@@ -130,13 +130,13 @@ public class GLImageFacePointsFilter extends GLImageFilter {
         return textureId;
     }
 
-    @Override
-    public void initFrameBuffer(int width, int height) {
-        // do nothing
-    }
-
-    @Override
-    public void destroyFrameBuffer() {
-        // do nothing
-    }
+//    @Override
+//    public void initFrameBuffer(int width, int height) {
+//        super.initFrameBuffer(width, height);
+//    }
+//
+//    @Override
+//    public void destroyFrameBuffer() {
+//        // do nothing
+//    }
 }

@@ -21,7 +21,7 @@ import java.util.LinkedList;
 
 public class GLImageFilter {
 
-    protected static final String VERTEX_SHADER = "" +
+    protected static final String VERTEX_SHADER =
             "attribute vec4 aPosition;                                  \n" +
             "attribute vec4 aTextureCoord;                              \n" +
             "varying vec2 textureCoordinate;                            \n" +
@@ -332,7 +332,7 @@ public class GLImageFilter {
             mFrameBuffers = null;
         }
         mFrameWidth = -1;
-        mFrameWidth = -1;
+        mFrameHeight = -1;
     }
 
     /**
