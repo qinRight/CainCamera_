@@ -26,7 +26,7 @@ public final class LandmarkEngine {
     private final SparseArray<OneFace> mFaceArrays;
 
     // 手机当前的方向，0表示正屏幕，3表示倒过来，1表示左屏幕，2表示右屏幕
-    private float mOrientation;
+    private float mOrientation = 0;
     private boolean mNeedFlip;
 
     /**
@@ -284,8 +284,8 @@ public final class LandmarkEngine {
      * @param faceIndex     人脸索引
      */
     public void updateFaceAdjustPoints(float[] vertexPoints, float[] texturePoints, int faceIndex) {
-        if (vertexPoints == null || vertexPoints.length != 122 * 2
-                || texturePoints == null || texturePoints.length != 122 * 2) {
+        if (vertexPoints == null || vertexPoints.length != 73 * 2
+                || texturePoints == null || texturePoints.length != 73 * 2) {
             return;
         }
         // 计算额外的人脸顶点坐标
@@ -448,5 +448,212 @@ public final class LandmarkEngine {
             vertexPoints[(i - 84) * 2] = mFaceArrays.get(faceIndex).vertexPoints[i * 2];
             vertexPoints[(i - 84) * 2 + 1] = mFaceArrays.get(faceIndex).vertexPoints[i * 2 + 1];
         }
+    }
+
+    public synchronized void getBigEyeVertices(float[] vertexPoints, int faceIndex) {
+        if (vertexPoints == null && vertexPoints.length != 4
+                || faceIndex >= mFaceArrays.size() || mFaceArrays.get(faceIndex) == null) {
+            return;
+        }
+        vertexPoints[0] = (mFaceArrays.get(faceIndex).vertexPoints[36 * 2]+mFaceArrays.get(faceIndex).vertexPoints[39 * 2])/2;
+        vertexPoints[1] = (mFaceArrays.get(faceIndex).vertexPoints[36 * 2 + 1]+mFaceArrays.get(faceIndex).vertexPoints[39 * 2 + 1])/2;
+        vertexPoints[2] = (mFaceArrays.get(faceIndex).vertexPoints[42 * 2]+mFaceArrays.get(faceIndex).vertexPoints[45 * 2])/2;
+        vertexPoints[3] = (mFaceArrays.get(faceIndex).vertexPoints[42 * 2 + 1]+mFaceArrays.get(faceIndex).vertexPoints[45 * 2 + 1])/2;
+    }
+
+    public synchronized void getSmallFaceVertices(float[] vertexPoints, int faceIndex) {
+        if (vertexPoints == null && vertexPoints.length != 4
+                || faceIndex >= mFaceArrays.size() || mFaceArrays.get(faceIndex) == null) {
+            return;
+        }
+        vertexPoints[0] = mFaceArrays.get(faceIndex).vertexPoints[30 * 2];
+        vertexPoints[1] = mFaceArrays.get(faceIndex).vertexPoints[30 * 2 + 1];
+        vertexPoints[2] = mFaceArrays.get(faceIndex).vertexPoints[8 * 2];
+        vertexPoints[3] = mFaceArrays.get(faceIndex).vertexPoints[8 * 2 + 1];
+
+    }
+
+    public synchronized void getSlimFaceVerticesLeft(float[] vertexPoints, int faceIndex) {
+        if (vertexPoints == null && vertexPoints.length != 4
+                || faceIndex >= mFaceArrays.size() || mFaceArrays.get(faceIndex) == null) {
+            return;
+        }
+        vertexPoints[0] = mFaceArrays.get(faceIndex).vertexPoints[4 * 2];
+        vertexPoints[1] = mFaceArrays.get(faceIndex).vertexPoints[4 * 2 + 1];
+        vertexPoints[2] = mFaceArrays.get(faceIndex).vertexPoints[5 * 2];
+        vertexPoints[3] = mFaceArrays.get(faceIndex).vertexPoints[5 * 2 + 1];
+
+    }
+
+    public synchronized void getSlimFaceVerticesRight(float[] vertexPoints, int faceIndex) {
+        if (vertexPoints == null && vertexPoints.length != 4
+                || faceIndex >= mFaceArrays.size() || mFaceArrays.get(faceIndex) == null) {
+            return;
+        }
+        vertexPoints[0] = mFaceArrays.get(faceIndex).vertexPoints[12 * 2];
+        vertexPoints[1] = mFaceArrays.get(faceIndex).vertexPoints[12 * 2 + 1];
+        vertexPoints[2] = mFaceArrays.get(faceIndex).vertexPoints[11 * 2];
+        vertexPoints[3] = mFaceArrays.get(faceIndex).vertexPoints[11 * 2 + 1];
+
+    }
+
+    private void calculateImageEdgePointsFor68(float[] vertexPoints) {
+        if (vertexPoints == null || vertexPoints.length < 76 * 2) {
+            return;
+        }
+
+        if (mOrientation == 0) {
+            vertexPoints[66 * 2] = 0;
+            vertexPoints[66 * 2 + 1] = 1;
+            vertexPoints[67 * 2] = 1;
+            vertexPoints[67 * 2 + 1] = 1;
+            vertexPoints[68 * 2] = 1;
+            vertexPoints[68 * 2 + 1] = 0;
+            vertexPoints[69 * 2] = 1;
+            vertexPoints[69 * 2 + 1] = -1;
+        } else if (mOrientation == 1) {
+            vertexPoints[66 * 2] = 1;
+            vertexPoints[66 * 2 + 1] = 0;
+            vertexPoints[67 * 2] = 1;
+            vertexPoints[67 * 2 + 1] = -1;
+            vertexPoints[68 * 2] = 0;
+            vertexPoints[68 * 2 + 1] = -1;
+            vertexPoints[69 * 2] = -1;
+            vertexPoints[69 * 2 + 1] = -1;
+        } else if (mOrientation == 2) {
+            vertexPoints[66 * 2] = -1;
+            vertexPoints[66 * 2 + 1] = 0;
+            vertexPoints[67 * 2] = -1;
+            vertexPoints[67 * 2 + 1] = 1;
+            vertexPoints[68 * 2] = 0;
+            vertexPoints[68 * 2 + 1] = 1;
+            vertexPoints[69 * 2] = 1;
+            vertexPoints[69 * 2 + 1] = 1;
+        } else if (mOrientation == 3) {
+            vertexPoints[66 * 2] = 0;
+            vertexPoints[66 * 2 + 1] = -1;
+            vertexPoints[67 * 2] = -1;
+            vertexPoints[67 * 2 + 1] = -1;
+            vertexPoints[68 * 2] = -1;
+            vertexPoints[68 * 2 + 1] = 0;
+            vertexPoints[69 * 2] = -1;
+            vertexPoints[69 * 2 + 1] = 1;
+        }
+        // 118 ~ 121 与 66 ~ 69 的顶点坐标恰好反过来
+        vertexPoints[70 * 2] = -vertexPoints[66 * 2];
+        vertexPoints[70 * 2 + 1] = -vertexPoints[66 * 2 + 1];
+        vertexPoints[71 * 2] = -vertexPoints[67 * 2];
+        vertexPoints[71 * 2 + 1] = -vertexPoints[67 * 2 + 1];
+        vertexPoints[72 * 2] = -vertexPoints[68 * 2];
+        vertexPoints[72 * 2 + 1] = -vertexPoints[68 * 2 + 1];
+        vertexPoints[73 * 2] = -vertexPoints[69 * 2];
+        vertexPoints[73 * 2 + 1] = -vertexPoints[69 * 2 + 1];
+
+        vertexPoints[74 * 2] = vertexPoints[36 * 2] + vertexPoints[39 * 2];
+        vertexPoints[74 * 2 + 1] = vertexPoints[36 * 2 + 1] + vertexPoints[39 * 2 + 1];
+        vertexPoints[75 * 2] = vertexPoints[42 * 2] + vertexPoints[45 * 2];
+        vertexPoints[75 * 2 + 1] = vertexPoints[42 * 2 + 1] + vertexPoints[45 * 2 + 1];
+
+    }
+
+
+    public void updateFaceAdjustPointsFor68(float[] vertexPoints, float[] texturePoints, int faceIndex) {
+        if (vertexPoints == null || vertexPoints.length != 76 * 2
+                || texturePoints == null || texturePoints.length != 76 * 2) {
+            return;
+        }
+        // 计算额外的人脸顶点坐标
+        calculateExtraFacePointsFor68(vertexPoints, faceIndex);
+        // 计算图像边沿顶点坐标
+        calculateImageEdgePointsFor68(vertexPoints);
+        // 计算纹理坐标
+        for (int i = 0; i < vertexPoints.length; i++) {
+            texturePoints[i] = vertexPoints[i] * 0.5f + 0.5f;
+        }
+    }
+
+    public void calculateExtraFacePointsFor68(float[] vertexPoints, int index) {
+        if (vertexPoints == null || index >= mFaceArrays.size() || mFaceArrays.get(index) == null
+                || mFaceArrays.get(index).vertexPoints.length > vertexPoints.length) {
+            return;
+        }
+        OneFace oneFace = mFaceArrays.get(index);
+        // 复制关键点的数据
+        System.arraycopy(oneFace.vertexPoints, 0, vertexPoints, 0, oneFace.vertexPoints.length);
+//        // 新增的人脸关键点
+//        float[] point = new float[2];
+//        // 嘴唇中心
+//        FacePointsUtils.getCenter(point,
+//                vertexPoints[FaceLandmark.mouthUpperLipBottom * 2],
+//                vertexPoints[FaceLandmark.mouthUpperLipBottom * 2 + 1],
+//                vertexPoints[FaceLandmark.mouthLowerLipTop * 2],
+//                vertexPoints[FaceLandmark.mouthLowerLipTop * 2 + 1]
+//        );
+//        vertexPoints[FaceLandmark.mouthCenter * 2] = point[0];
+//        vertexPoints[FaceLandmark.mouthCenter * 2 + 1] = point[1];
+//
+//        // 左眉心
+//        FacePointsUtils.getCenter(point,
+//                vertexPoints[FaceLandmark.leftEyebrowUpperMiddle * 2],
+//                vertexPoints[FaceLandmark.leftEyebrowUpperMiddle * 2 + 1],
+//                vertexPoints[FaceLandmark.leftEyebrowLowerMiddle * 2],
+//                vertexPoints[FaceLandmark.leftEyebrowLowerMiddle * 2 + 1]
+//        );
+//        vertexPoints[FaceLandmark.leftEyebrowCenter * 2] = point[0];
+//        vertexPoints[FaceLandmark.leftEyebrowCenter * 2 + 1] = point[1];
+//
+//        // 右眉心
+//        FacePointsUtils.getCenter(point,
+//                vertexPoints[FaceLandmark.rightEyebrowUpperMiddle * 2],
+//                vertexPoints[FaceLandmark.rightEyebrowUpperMiddle * 2 + 1],
+//                vertexPoints[FaceLandmark.rightEyebrowLowerMiddle * 2],
+//                vertexPoints[FaceLandmark.rightEyebrowLowerMiddle * 2 + 1]
+//        );
+//        vertexPoints[FaceLandmark.rightEyebrowCenter * 2] = point[0];
+//        vertexPoints[FaceLandmark.rightEyebrowCenter * 2 + 1] = point[1];
+//
+//        // 额头中心
+//        vertexPoints[FaceLandmark.headCenter * 2] = vertexPoints[FaceLandmark.eyeCenter * 2] * 2.0f - vertexPoints[FaceLandmark.noseLowerMiddle * 2];
+//        vertexPoints[FaceLandmark.headCenter * 2 + 1] = vertexPoints[FaceLandmark.eyeCenter * 2 + 1] * 2.0f - vertexPoints[FaceLandmark.noseLowerMiddle * 2 + 1];
+//
+//        // 额头左侧，备注：这个点不太准确，后续优化
+//        FacePointsUtils.getCenter(point,
+//                vertexPoints[FaceLandmark.leftEyebrowLeftTopCorner * 2],
+//                vertexPoints[FaceLandmark.leftEyebrowLeftTopCorner * 2 + 1],
+//                vertexPoints[FaceLandmark.headCenter * 2],
+//                vertexPoints[FaceLandmark.headCenter * 2 + 1]
+//        );
+//        vertexPoints[FaceLandmark.leftHead * 2] = point[0];
+//        vertexPoints[FaceLandmark.leftHead * 2 + 1] = point[1];
+//
+//        // 额头右侧，备注：这个点不太准确，后续优化
+//        FacePointsUtils.getCenter(point,
+//                vertexPoints[FaceLandmark.rightEyebrowRightTopCorner * 2],
+//                vertexPoints[FaceLandmark.rightEyebrowRightTopCorner * 2 + 1],
+//                vertexPoints[FaceLandmark.headCenter * 2],
+//                vertexPoints[FaceLandmark.headCenter * 2 + 1]
+//        );
+//        vertexPoints[FaceLandmark.rightHead * 2] = point[0];
+//        vertexPoints[FaceLandmark.rightHead * 2 + 1] = point[1];
+//
+//        // 左脸颊中心
+//        FacePointsUtils.getCenter(point,
+//                vertexPoints[FaceLandmark.leftCheekEdgeCenter * 2],
+//                vertexPoints[FaceLandmark.leftCheekEdgeCenter * 2 + 1],
+//                vertexPoints[FaceLandmark.noseLeft * 2],
+//                vertexPoints[FaceLandmark.noseLeft * 2 + 1]
+//        );
+//        vertexPoints[FaceLandmark.leftCheekCenter * 2] = point[0];
+//        vertexPoints[FaceLandmark.leftCheekCenter * 2 + 1] = point[1];
+//
+//        // 右脸颊中心
+//        FacePointsUtils.getCenter(point,
+//                vertexPoints[FaceLandmark.rightCheekEdgeCenter * 2],
+//                vertexPoints[FaceLandmark.rightCheekEdgeCenter * 2 + 1],
+//                vertexPoints[FaceLandmark.noseRight * 2],
+//                vertexPoints[FaceLandmark.noseRight * 2 + 1]
+//        );
+//        vertexPoints[FaceLandmark.rightCheekCenter * 2] = point[0];
+//        vertexPoints[FaceLandmark.rightCheekCenter * 2 + 1] = point[1];
     }
 }

@@ -1,2 +1,5 @@
 include ':app', ':cameralibrary', ':facedetectlibrary', ':filterlibrary', ':videolibrary', ':gdxlibrary',
         ':landmarklibrary', ':scanlibrary', ':imagelibrary', ':medialibrary', ':utilslibrary'
+include ':..:gpuimageplus_lib_cmake'
+include ':..:FaceTracker'
+

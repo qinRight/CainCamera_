@@ -18,8 +18,11 @@ import com.cgfay.filterlibrary.glfilter.beauty.GLImageBeautyFilter;
 import com.cgfay.filterlibrary.glfilter.beauty.bean.IBeautify;
 import com.cgfay.filterlibrary.glfilter.color.GLImageDynamicColorFilter;
 import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColor;
+import com.cgfay.filterlibrary.glfilter.face.EyeBeautyFilter;
+import com.cgfay.filterlibrary.glfilter.face.FaceSlimFilter;
 import com.cgfay.filterlibrary.glfilter.face.GLImageFacePointsFilter;
 import com.cgfay.filterlibrary.glfilter.face.GLImageFaceReshapeFilter;
+import com.cgfay.filterlibrary.glfilter.face.SmallFaceFilter;
 import com.cgfay.filterlibrary.glfilter.makeup.GLImageMakeupFilter;
 import com.cgfay.filterlibrary.glfilter.makeup.bean.DynamicMakeup;
 import com.cgfay.filterlibrary.glfilter.multiframe.GLImageFrameEdgeBlurFilter;
@@ -29,9 +32,15 @@ import com.cgfay.filterlibrary.glfilter.stickers.StaticStickerNormalFilter;
 import com.cgfay.filterlibrary.glfilter.stickers.bean.DynamicSticker;
 import com.cgfay.filterlibrary.glfilter.utils.OpenGLUtils;
 import com.cgfay.filterlibrary.glfilter.utils.TextureRotationUtils;
+import com.cgfay.landmarklibrary.FaceLandmark;
 import com.cgfay.landmarklibrary.LandmarkEngine;
 
 import java.nio.FloatBuffer;
+
+import static com.cgfay.filterlibrary.manager.RenderIndex.BIGEYE;
+
+import static com.cgfay.filterlibrary.manager.RenderIndex.SLIMFACE2;
+import static com.cgfay.filterlibrary.manager.RenderIndex.SMALLFACE;
 
 /**
  * 渲染管理器
@@ -100,6 +109,7 @@ public final class RenderImageManager {
             }
         }
         mFilterArrays.clear();
+
     }
 
     /**
@@ -151,6 +161,10 @@ public final class RenderImageManager {
         mFilterArrays.put(RenderIndex.DisplayIndex, new GLImageFilter(context));
         // 人脸关键点调试
         mFilterArrays.put(RenderIndex.FacePointIndex, new GLImageFacePointsFilter(context));
+
+        mFilterArrays.put(BIGEYE, new EyeBeautyFilter(context));
+        mFilterArrays.put(SLIMFACE2, new FaceSlimFilter(context));
+        mFilterArrays.put(SMALLFACE,new SmallFaceFilter(context));
     }
 
     /**
@@ -280,26 +294,74 @@ public final class RenderImageManager {
         // 如果处于对比状态，不做处理
         if (!mCameraParam.showCompare ) {
             // 美颜滤镜
-            if (mFilterArrays.get(RenderIndex.BeautyIndex) != null) {
-                if (mFilterArrays.get(RenderIndex.BeautyIndex) instanceof IBeautify
-                        && mCameraParam.beauty != null) {
-                    ((IBeautify) mFilterArrays.get(RenderIndex.BeautyIndex)).onBeauty(mCameraParam.beauty);
+//            if (mFilterArrays.get(RenderIndex.BeautyIndex) != null) {
+//                if (mFilterArrays.get(RenderIndex.BeautyIndex) instanceof IBeautify
+//                        && mCameraParam.beauty != null) {
+//                    ((IBeautify) mFilterArrays.get(RenderIndex.BeautyIndex)).onBeauty(mCameraParam.beauty);
+//                }
+//                currentTexture = mFilterArrays.get(RenderIndex.BeautyIndex).drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
+//            }
+
+            if (mFilterArrays.get(BIGEYE) != null) {
+                GLImageFilter gtvImageFilter = mFilterArrays.get(BIGEYE);
+                if (mCameraParam.beauty != null && gtvImageFilter instanceof EyeBeautyFilter) {
+                    float[] eye_pos = new float[4];
+                    LandmarkEngine.getInstance().getBigEyeVertices(eye_pos,0);
+                    float[] a = {eye_pos[0], eye_pos[1]};
+                    float[] b = {eye_pos[2], eye_pos[3]};
+                    ((EyeBeautyFilter)gtvImageFilter).setEyePosition(a, b);
+                    ((EyeBeautyFilter)gtvImageFilter).setIntensity(mCameraParam.beauty.eyeEnlargeIntensity*1.0f/3.20f);// TODO:根据设定来
                 }
-                currentTexture = mFilterArrays.get(RenderIndex.BeautyIndex).drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
+                currentTexture = mFilterArrays.get(BIGEYE).drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
             }
+
+            if (mFilterArrays.get(SMALLFACE) != null) {
+                GLImageFilter gtvImageFilter = mFilterArrays.get(SMALLFACE);
+                if (mCameraParam.beauty != null && gtvImageFilter instanceof SmallFaceFilter) {
+                    float[] small_face_pos = new float[4];
+                    LandmarkEngine.getInstance().getSmallFaceVertices(small_face_pos,0);
+                    ((SmallFaceFilter)gtvImageFilter).setIntensity(mCameraParam.beauty.chinIntensity * 1.0f /2.0f);
+                    float[] c = {small_face_pos[0], small_face_pos[1]};
+                    float[] d = {small_face_pos[2], small_face_pos[3]};
+                    ((SmallFaceFilter)gtvImageFilter).setNoseAndChinPosition(c, d);
+
+                }
+                currentTexture = mFilterArrays.get(SMALLFACE).drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
+            }
+
+            if (mFilterArrays.get(SLIMFACE2) != null) {
+                GLImageFilter gtvImageFilter = mFilterArrays.get(SLIMFACE2);
+                if (mCameraParam.beauty != null && gtvImageFilter instanceof FaceSlimFilter) {
+                    float[] small_face_pos = new float[4];
+                    LandmarkEngine.getInstance().getSlimFaceVerticesLeft(small_face_pos,0);
+                    ((FaceSlimFilter)gtvImageFilter).setIntensity(mCameraParam.beauty.faceLift * 1.0f /2.0f);
+                    float[] a = {small_face_pos[0], small_face_pos[1]};
+                    float[] b = {small_face_pos[2], small_face_pos[3]};
+                    ((FaceSlimFilter)gtvImageFilter).setLeftFacePosition(a, b);
+                    small_face_pos = new float[4];
+                    LandmarkEngine.getInstance().getSlimFaceVerticesRight(small_face_pos,0);
+                    ((FaceSlimFilter)gtvImageFilter).setIntensity(mCameraParam.beauty.faceLift * 1.0f /2.0f);
+                    float[] c = {small_face_pos[0], small_face_pos[1]};
+                    float[] d = {small_face_pos[2], small_face_pos[3]};
+                    ((FaceSlimFilter)gtvImageFilter).setRightFacePosition(c, d);
+                }
+                currentTexture = gtvImageFilter.drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
+            }
+
+
 
             // 彩妆滤镜
-            if (mFilterArrays.get(RenderIndex.MakeupIndex) != null ) {
-                currentTexture = mFilterArrays.get(RenderIndex.MakeupIndex).drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
-            }
+//            if (mFilterArrays.get(RenderIndex.MakeupIndex) != null ) {
+//                currentTexture = mFilterArrays.get(RenderIndex.MakeupIndex).drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
+//            }
 
             // 美型滤镜
-            if (mFilterArrays.get(RenderIndex.FaceAdjustIndex) != null) {
-                if (mFilterArrays.get(RenderIndex.FaceAdjustIndex) instanceof IBeautify) {
-                    ((IBeautify) mFilterArrays.get(RenderIndex.FaceAdjustIndex)).onBeauty(mCameraParam.beauty);
-                }
-                currentTexture = mFilterArrays.get(RenderIndex.FaceAdjustIndex).drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
-            }
+//            if (mFilterArrays.get(RenderIndex.FaceAdjustIndex) != null) {
+//                if (mFilterArrays.get(RenderIndex.FaceAdjustIndex) instanceof IBeautify) {
+//                    ((IBeautify) mFilterArrays.get(RenderIndex.FaceAdjustIndex)).onBeauty(mCameraParam.beauty);
+//                }
+//                currentTexture = mFilterArrays.get(RenderIndex.FaceAdjustIndex).drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
+//            }
 
             // 绘制颜色滤镜
             if (mFilterArrays.get(RenderIndex.FilterIndex) != null) {
@@ -341,11 +403,11 @@ public final class RenderImageManager {
             }
         }
 
-        if (mFilterArrays.get(RenderIndex.FacePointIndex) != null) {
-            if (LandmarkEngine.getInstance().hasFace()) {
-                currentTexture = mFilterArrays.get(RenderIndex.FacePointIndex).drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
-            }
-        }
+//        if (mFilterArrays.get(RenderIndex.FacePointIndex) != null) {
+//            if (LandmarkEngine.getInstance().hasFace()) {
+//                currentTexture = mFilterArrays.get(RenderIndex.FacePointIndex).drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
+//            }
+//        }
         // 显示输出，需要调整视口大小
         mFilterArrays.get(RenderIndex.DisplayIndex).drawFrame(currentTexture, mVertexBuffer, mTextureBuffer);
 

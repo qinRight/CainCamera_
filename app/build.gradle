@@ -49,6 +49,7 @@ dependencies {
     implementation project(':medialibrary')
     implementation project(':utilslibrary')
     implementation project(':videolibrary')
+    implementation project(':..:FaceTracker')
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:recyclerview-v7:27.1.1'
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'

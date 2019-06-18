@@ -36,7 +36,7 @@ public class GLImageFacePointsFilter extends GLImageFilter {
     private final float color[] = { 1.0f, 0.0f, 0.0f, 1.0f };
 
     private int mColorHandle;
-    private int mPointCount = 114;
+    private int mPointCount = 67;
     private float[] mPoints;
     private FloatBuffer mPointVertexBuffer;
 
@@ -96,7 +96,7 @@ public class GLImageFacePointsFilter extends GLImageFilter {
                 SparseArray<OneFace> faceArrays = LandmarkEngine.getInstance().getFaceArrays();
                 for (int i = 0; i < faceArrays.size(); i++) {
                     if (faceArrays.get(i).vertexPoints != null) {
-                        LandmarkEngine.getInstance().calculateExtraFacePoints(mPoints, i);
+                        LandmarkEngine.getInstance().calculateExtraFacePointsFor68(mPoints, i);
                         mPointVertexBuffer.clear();
                         mPointVertexBuffer.put(mPoints, 0, mPoints.length);
                         mPointVertexBuffer.position(0);

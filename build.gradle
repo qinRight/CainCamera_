@@ -26,3 +26,17 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+ext {
+    butterknifeVersion = '8.4.0'
+    firebaseVersion = '11.4.2'
+    buildToolsVersion = '28.0.3'
+    compileSdkVersion = 28
+    minSdkVersion = 16
+    targetSdkVersion = 28
+    supportLibraryVersion = '27.1.1'
+    fabricCrashVersion = '2.6.8'
+    fabricAnwserVersion = '1.3.13'
+    glideVersion = '4.6.1'
+    OkhttpVersion = '3.12.0'
+}

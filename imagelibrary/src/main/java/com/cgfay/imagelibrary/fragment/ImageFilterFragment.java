@@ -32,7 +32,7 @@ import com.cgfay.filterlibrary.widget.GLImageSurfaceView;
 import com.cgfay.imagelibrary.R;
 import com.cgfay.imagelibrary.adapter.ImageFilterAdapter;
 import com.cgfay.utilslibrary.utils.BitmapUtils;
-import com.tzutalin.dlib.Constants;
+
 
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -100,7 +100,7 @@ public class ImageFilterFragment extends Fragment implements View.OnClickListene
         mCainImageView = (GLImageSurfaceView) view.findViewById(R.id.glImageView);
         if (mBitmap != null) {
             mCainImageView.setBitmap(mBitmap);
-            FaceTrackerWithImage.getInstance().trackFaceWithBitmap(mActivity, mBitmap);
+            FaceTrackerWithImage.getInstance().trackFaceWithBitmap(mBitmap);
         }
         // 滤镜内容框
         mLayoutFilterContent = (FrameLayout) view.findViewById(R.id.layout_filter_content);
@@ -124,6 +124,7 @@ public class ImageFilterFragment extends Fragment implements View.OnClickListene
                 if (motionEvent.getAction() == MotionEvent.ACTION_DOWN){
                     ImageParam.getInstance().showCompare = true;
                     mCainImageView.startNewRender();
+                    FaceTrackerWithImage.getInstance().trackFaceWithBitmap(mBitmap);
                 }else if (motionEvent.getAction() == MotionEvent.ACTION_MOVE){
 
                 }else{
@@ -133,26 +134,41 @@ public class ImageFilterFragment extends Fragment implements View.OnClickListene
                 return true;
             }
         });
-        SeekBar mseekbar = view.findViewById(R.id.filterseekbar);
-        mseekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                ImageParam.getInstance().beauty.faceLift = seekBar.getProgress()/100.f;
-                mCainImageView.startNewRender();
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
+        slimfaceseekbar = view.findViewById(R.id.slimfaceseekbar);
+        slimfaceseekbar.setOnSeekBarChangeListener(onelistener);
+        facesmallseekbar = view.findViewById(R.id.facesmallseekbar);
+        facesmallseekbar.setOnSeekBarChangeListener(onelistener);
+        bigeyeseekbar = view.findViewById(R.id.bigeyeseekbar);
+        bigeyeseekbar.setOnSeekBarChangeListener(onelistener);
     }
+
+    SeekBar slimfaceseekbar;
+    SeekBar facesmallseekbar ;
+    SeekBar bigeyeseekbar;
+
+    SeekBar.OnSeekBarChangeListener onelistener = new SeekBar.OnSeekBarChangeListener() {
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+            if (seekBar == slimfaceseekbar) {
+                ImageParam.getInstance().beauty.faceLift = seekBar.getProgress() / 100.f;
+            }else if (seekBar == facesmallseekbar) {
+                ImageParam.getInstance().beauty.chinIntensity = seekBar.getProgress() / 100.f;
+            }else if (seekBar == bigeyeseekbar) {
+                ImageParam.getInstance().beauty.eyeEnlargeIntensity = seekBar.getProgress() / 100.f;
+            }
+            mCainImageView.startNewRender();
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+
+        }
+    };
 
     @Override
     public void onResume() {

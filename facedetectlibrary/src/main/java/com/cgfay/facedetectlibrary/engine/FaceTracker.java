@@ -17,10 +17,8 @@ import com.cgfay.facedetectlibrary.utils.ConUtil;
 import com.cgfay.facedetectlibrary.utils.SensorEventUtil;
 import com.cgfay.landmarklibrary.LandmarkEngine;
 import com.cgfay.landmarklibrary.OneFace;
-import com.tzutalin.dlib.Constants;
-import com.tzutalin.dlib.FaceDet;
-import com.tzutalin.dlib.PedestrianDet;
-import com.tzutalin.dlib.VisionDetRet;
+
+import org.wysaid.nativePort.CGEFaceTracker;
 
 import java.util.List;
 //import com.megvii.facepp.sdk.Facepp;
@@ -99,19 +97,19 @@ public final class FaceTracker {
         }
     }
 
-    /**
-     * 检测人脸
-     * @param data
-     * @param width
-     * @param height
-     */
-    public void trackFace(Context context,byte[] data, int width, int height) {
-        synchronized (mSyncFence) {
-            if (mTrackerThread != null) {
-                mTrackerThread.trackFace(context,data, width, height);
-            }
-        }
-    }
+//    /**
+//     * 检测人脸
+//     * @param data
+//     * @param width
+//     * @param height
+//     */
+//    public void trackFace(Context context,byte[] data, int width, int height) {
+//        synchronized (mSyncFence) {
+//            if (mTrackerThread != null) {
+//                mTrackerThread.trackFace(context,data, width, height);
+//            }
+//        }
+//    }
 
     public void trackFace(final Bitmap bitmap) {
         new Thread(new Runnable() {
@@ -247,8 +245,7 @@ public final class FaceTracker {
 
         private Looper mLooper;
         private @Nullable Handler mHandler;
-        FaceDet mFaceDet;
-        PedestrianDet mPersonDet;
+        CGEFaceTracker facetracker;// = CGEFaceTracker.createFaceTracker();
         public TrackerThread(String name) {
             super(name);
         }
@@ -335,21 +332,21 @@ public final class FaceTracker {
             });
         }
 
-        /**
-         * 检测人脸
-         * @param data      图像数据， NV21 或者 RGBA格式
-         * @param width     图像宽度
-         * @param height    图像高度
-         * @return          是否检测成功
-         */
-        public void trackFace(final Context context, final byte[] data, final int width, final int height) {
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    internalTrackFace(context,data, width, height);
-                }
-            });
-        }
+//        /**
+//         * 检测人脸
+//         * @param data      图像数据， NV21 或者 RGBA格式
+//         * @param width     图像宽度
+//         * @param height    图像高度
+//         * @return          是否检测成功
+//         */
+//        public void trackFace(final Context context, final byte[] data, final int width, final int height) {
+//            mHandler.post(new Runnable() {
+//                @Override
+//                public void run() {
+//                    internalTrackFace(context,data, width, height);
+//                }
+//            });
+//        }
 
         public void trackFace(final Bitmap bitmap) {
             mHandler.post(new Runnable() {
@@ -368,9 +365,9 @@ public final class FaceTracker {
 //                facepp.release();
 //                facepp = null;
 //            }
-            if (mFaceDet != null){
-                mFaceDet.release();
-                mFaceDet = null;
+            if (facetracker != null){
+                facetracker.release();
+                facetracker = null;
             }
         }
 
@@ -410,12 +407,7 @@ public final class FaceTracker {
                 right = width - left;
                 bottom = height - top;
             }
-            if (mPersonDet == null) {
-                mPersonDet = new PedestrianDet();
-            }
-            if (mFaceDet == null) {
-                mFaceDet = new FaceDet(Constants.getFaceShapeModelPath());
-            }
+            facetracker = CGEFaceTracker.createFaceTracker();
 //            facepp.init(context, ConUtil.getFileContent(context, R.raw.megviifacepp_0_5_2_model));
 //            Facepp.FaceppConfig faceppConfig = facepp.getFaceppConfig();
 //            faceppConfig.interval = faceTrackParam.detectInterval;
@@ -431,14 +423,11 @@ public final class FaceTracker {
 
         /**
          * 检测人脸
-         * @param data      图像数据，预览时为NV21，静态图片则为RGBA格式
-         * @param width     图像宽度
-         * @param height    图像高度
          * @return          是否检测成功
          */
-        private synchronized void internalTrackFace(Context context,byte[] data, int width, int height) {
+        private synchronized void trackFaceWithBitmap(Bitmap bitmap) {
             FaceTrackParam faceTrackParam = FaceTrackParam.getInstance();
-            if (!faceTrackParam.canFaceTrack || mFaceDet == null) {
+            if (!faceTrackParam.canFaceTrack) {
                 LandmarkEngine.getInstance().setFaceSize(0);
                 if (faceTrackParam.trackerCallback != null) {
                     faceTrackParam.trackerCallback.onTrackingFinish();
@@ -446,152 +435,34 @@ public final class FaceTracker {
                 return;
             }
 
-            // 调整检测监督
-            long faceDetectTime_action = System.currentTimeMillis();
-            // 获取设备旋转
-            int orientation = faceTrackParam.previewTrack ? mSensorUtil.orientation : 0;
-            int rotation = 0;
-            if (orientation == 0) {         // 0
-                rotation = faceTrackParam.rotateAngle;
-            } else if (orientation == 1) {  // 90
-                rotation = 0;
-            } else if (orientation == 2) {  // 270
-                rotation = 180;
-            } else if (orientation == 3) {  // 180
-                rotation = 360 - faceTrackParam.rotateAngle;
-            }
-            // 设置旋转角度
-//            Facepp.FaceppConfig faceppConfig = facepp.getFaceppConfig();
-//            if (faceppConfig.rotation != rotation) {
-//                faceppConfig.rotation = rotation;
-//                facepp.setFaceppConfig(faceppConfig);
-//            }
 
-            // 人脸检测
-
-            Bitmap bitmap = Bitmap.createBitmap(width,height, Bitmap.Config.ARGB_8888);
-            Allocation bmData = renderScriptNV21ToRGBA8888(
-                    context, width, height, data);
-            bmData.copyTo(bitmap);
-//            final Facepp.Face[] faces = facepp.detect(data, width, height,
-//                    faceTrackParam.previewTrack ? Facepp.IMAGEMODE_NV21 : Facepp.IMAGEMODE_RGBA);
-
-            List<VisionDetRet> detRets =  mFaceDet.detect(bitmap);
-            // 计算检测时间
-            if (VERBOSE) {
-                final long algorithmTime = System.currentTimeMillis() - faceDetectTime_action;
-                Log.d("onFaceTracking", "track time = " + algorithmTime);
-            }
-
-            // 设置旋转方向
-//            LandmarkEngine.getInstance().setOrientation(orientation);
-//            // 设置是否需要翻转
-//            LandmarkEngine.getInstance().setNeedFlip(faceTrackParam.previewTrack && faceTrackParam.isBackCamera);
+            float[] faceresult = facetracker.detectFaceWithResult(bitmap, 0);
 
             // 计算人脸关键点
-            if (detRets != null && detRets.size() > 0) {
-                for (int index = 0; index < detRets.size(); index++) {
-                    VisionDetRet tempdetret  =detRets.get(index);
-                    OneFace oneFace = LandmarkEngine.getInstance().getOneFace(index);
-                    // 姿态角和置信度
-//                    oneFace.pitch = face.pitch;
-//                    oneFace.yaw = face.yaw;
-//                    oneFace.roll = face.roll;
-                    oneFace.confidence = tempdetret.getConfidence();
-                    // 预览状态下，宽高交换
-                    if (faceTrackParam.previewTrack) {
-                        if (orientation == 1 || orientation == 2) {
-                            int temp = width;
-                            width = height;
-                            height = temp;
-                        }
-                    }
-
+            if ( faceresult.length > 0) {
+                OneFace oneFace = LandmarkEngine.getInstance().getOneFace(0);
+                for (int index = 0; index < faceresult.length / 2; index++) {
                     // 获取一个人的关键点坐标
-                    if (oneFace.vertexPoints == null || oneFace.vertexPoints.length != tempdetret.getFaceLandmarks().size() * 2) {
-                        oneFace.vertexPoints = new float[tempdetret.getFaceLandmarks().size() * 2];
+                    if (oneFace.vertexPoints == null) {
+                        oneFace.vertexPoints = new float[faceresult.length * 2];
                     }
-                    for (int i = 0; i < tempdetret.getFaceLandmarks().size(); i++) {
-                        // orientation = 0、3 表示竖屏，1、2 表示横屏
-                        float x = (tempdetret.getFaceLandmarks().get(i).x / height) * 2 - 1;
-                        float y = (tempdetret.getFaceLandmarks().get(i).y / width) * 2 - 1;
-                        float[] point = new float[] {x, -y};
-                        if (orientation == 1) {
-                            if (faceTrackParam.previewTrack && faceTrackParam.isBackCamera) {
-                                point[0] = -y;
-                                point[1] = -x;
-                            } else {
-                                point[0] = y;
-                                point[1] = x;
-                            }
-                        } else if (orientation == 2) {
-                            if (faceTrackParam.previewTrack && faceTrackParam.isBackCamera) {
-                                point[0] = y;
-                                point[1] = x;
-                            } else {
-                                point[0] = -y;
-                                point[1] = -x;
-                            }
-                        } else if (orientation == 3) {
-                            point[0] = -x;
-                            point[1] = y;
-                        }
-                        // 顶点坐标
-                        if (faceTrackParam.previewTrack) {
-                            if (faceTrackParam.isBackCamera) {
-                                oneFace.vertexPoints[2 * i] = point[0];
-                            } else {
-                                oneFace.vertexPoints[2 * i] = -point[0];
-                            }
-                        } else { // 非预览状态下，左右不需要翻转
-                            oneFace.vertexPoints[2 * i] = point[0];
-                        }
-                        oneFace.vertexPoints[2 * i + 1] = point[1];
-                    }
-                    // 插入人脸对象
-                    LandmarkEngine.getInstance().putOneFace(index, oneFace);
+                    oneFace.vertexPoints[index * 2] = faceresult[index * 2] / bitmap.getHeight() - 1;
+                    oneFace.vertexPoints[index * 2 + 1] = faceresult[index * 2 + 1] / bitmap.getWidth() - 1;
+
                 }
+                LandmarkEngine.getInstance().putOneFace(0, oneFace);
+                LandmarkEngine.getInstance().setFaceSize(1);
+            }else{
+                LandmarkEngine.getInstance().setFaceSize(0);
             }
             // 设置人脸个数
-            LandmarkEngine.getInstance().setFaceSize(detRets!= null ? detRets.size() : 0);
+
             // 检测完成回调
             if (faceTrackParam.trackerCallback != null) {
                 faceTrackParam.trackerCallback.onTrackingFinish();
             }
         }
 
-        private synchronized boolean trackFaceWithBitmap(Bitmap bitmap) {
-            List<VisionDetRet> detRets =  mFaceDet.detect(bitmap);
-            // 计算人脸关键点
-            if (detRets != null && detRets.size() > 0) {
-                for (int index = 0; index < detRets.size(); index++) {
-                    VisionDetRet tempdetret  =detRets.get(index);
-                    OneFace oneFace = LandmarkEngine.getInstance().getOneFace(index);
-                    oneFace.confidence = tempdetret.getConfidence();
-                    oneFace.mLeft = tempdetret.getLeft();
-                    oneFace.mRight = tempdetret.getRight();
-                    oneFace.mBottom = tempdetret.getBottom();
-                    oneFace.mTop = tempdetret.getTop();
-                    // 获取一个人的关键点坐标
-                    if (oneFace.vertexPoints == null || oneFace.vertexPoints.length != tempdetret.getFaceLandmarks().size() * 2) {
-                        oneFace.vertexPoints = new float[tempdetret.getFaceLandmarks().size() * 2];
-                    }
-                    for (int i = 0; i < tempdetret.getFaceLandmarks().size(); i++) {
-                        // orientation = 0、3 表示竖屏，1、2 表示横屏
-                        float x = (tempdetret.getFaceLandmarks().get(i).x / bitmap.getHeight()) * 2 - 1;
-                        float y = (tempdetret.getFaceLandmarks().get(i).y / bitmap.getWidth()) * 2 - 1;
-                        float[] point = new float[] {x, -y};
-                        oneFace.vertexPoints[2 * i] = point[0];
-                        oneFace.vertexPoints[2 * i + 1] = point[1];
-                    }
-                    // 插入人脸对象
-                    LandmarkEngine.getInstance().putOneFace(index, oneFace);
-                }
-            }
-            // 设置人脸个数
-            LandmarkEngine.getInstance().setFaceSize(detRets!= null ? detRets.size() : 0);
-            return true;
-        }
     }
 
 

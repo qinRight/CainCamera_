@@ -21,9 +21,9 @@ android {
                 arguments "-DANDROID_PLATFORM_LEVEL=${platformVersion}",
                         '-DANDROID_TOOLCHAIN=clang'
             }
-            ndk {
-                abiFilters "armeabi-v7a"
-            }
+//            ndk {
+//                abiFilters "armeabi-v7a"
+//            }
         }
     }
 
@@ -35,9 +35,8 @@ android {
     }
 
     externalNativeBuild {
-        cmake {
-            path "src/main/cpp/CMakeLists.txt"
-        }
+//        cma
+
     }
 }
 
