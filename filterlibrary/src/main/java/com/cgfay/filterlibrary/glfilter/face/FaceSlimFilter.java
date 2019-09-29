@@ -127,7 +127,7 @@ public class FaceSlimFilter extends GLImageFilter {
             setFloat(aspectRatioUniform, ratio);
             setFloat(radiusUniform, 0.0f);
 
-            setInteger(arraySizeUniform, 1);
+            setInteger(arraySizeUniform, 2);
             setFloatArray(deltaArrayUniform, new float[]{intensity});
 
             if (left == null) {
@@ -172,9 +172,11 @@ public class FaceSlimFilter extends GLImageFilter {
 //        setFloatVec2(rightEyeUniform, b);
         // TODO:这里做了上下颠倒！！！
         left[0] = a[0];
+//        left[1] = a[1];
         left[1] = 1.0f-a[1];
 
         right[0] = b[0];
+//        right[1] = b[1];
         right[1] = 1.0f-b[1];
     }
 
@@ -184,9 +186,11 @@ public class FaceSlimFilter extends GLImageFilter {
 //        setFloatVec2(rightEyeUniform, b);
         // TODO:这里做了上下颠倒！！！
         twoLeft[0] = a[0];
+//        twoLeft[1] = a[1];
         twoLeft[1] = 1.0f-a[1];
 
         twoRight[0] = b[0];
+//        twoRight[1] = b[1];
         twoRight[1] = 1.0f-b[1];
     }
 
@@ -200,15 +204,15 @@ public class FaceSlimFilter extends GLImageFilter {
         float r = (float) Math.sqrt( (left[0]-right[0])*(left[0]-right[0]) + (left[1]-right[1])*(left[1]-right[1]) );
         setFloat(radiusUniform, r);
 
-        setFloatArray(deltaArrayUniform, new float[]{r/5.0f*intensity});
+        setFloatArray(deltaArrayUniform, new float[]{r/2.0f*intensity});
 
         setFloatArray(leftContourPointsUniform, left);
         setFloatArray(rightContourPointsUniform, right);
 
         ////////////////////////////////////////////
-        r = (float) Math.sqrt( (twoLeft[0]-twoRight[0])*(twoLeft[0]-twoRight[0]) + (twoLeft[1]-twoRight[1])*(twoLeft[1]-twoRight[1]) );
+//        r = (float) Math.sqrt( (twoLeft[0]-twoRight[0])*(twoLeft[0]-twoRight[0]) + (twoLeft[1]-twoRight[1])*(twoLeft[1]-twoRight[1]) );
         setFloat(twoRadiusUniform, r);
-        setFloatArray(twoDeltaArrayUniform, new float[]{r/5.0f*intensity});
+        setFloatArray(twoDeltaArrayUniform, new float[]{r/2.0f*intensity});
 
         setFloatArray(twoLeftContourPointsUniform, twoLeft);
         setFloatArray(twoRightContourPointsUniform, twoRight);

@@ -20,7 +20,7 @@ public class ImageEditActivity extends AppCompatActivity {
         setContentView(R.layout.activity_image_edit);
         if (null == savedInstanceState) {
             ImageEditedFragment fragment = new ImageEditedFragment();
-            fragment.setImageBItmap(BitmapFactory.decodeResource(getResources(),R.drawable.yangmi));
+            fragment.setImageBItmap(BitmapFactory.decodeResource(getResources(),R.drawable.bgview));
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.container, fragment, FRAGMENT_IMAGE)

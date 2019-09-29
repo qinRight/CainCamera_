@@ -480,8 +480,8 @@ public final class LandmarkEngine {
         }
         vertexPoints[0] = mFaceArrays.get(faceIndex).vertexPoints[4 * 2];
         vertexPoints[1] = mFaceArrays.get(faceIndex).vertexPoints[4 * 2 + 1];
-        vertexPoints[2] = mFaceArrays.get(faceIndex).vertexPoints[5 * 2];
-        vertexPoints[3] = mFaceArrays.get(faceIndex).vertexPoints[5 * 2 + 1];
+        vertexPoints[2] = mFaceArrays.get(faceIndex).vertexPoints[6 * 2];
+        vertexPoints[3] = mFaceArrays.get(faceIndex).vertexPoints[6 * 2 + 1];
 
     }
 
@@ -492,8 +492,8 @@ public final class LandmarkEngine {
         }
         vertexPoints[0] = mFaceArrays.get(faceIndex).vertexPoints[12 * 2];
         vertexPoints[1] = mFaceArrays.get(faceIndex).vertexPoints[12 * 2 + 1];
-        vertexPoints[2] = mFaceArrays.get(faceIndex).vertexPoints[11 * 2];
-        vertexPoints[3] = mFaceArrays.get(faceIndex).vertexPoints[11 * 2 + 1];
+        vertexPoints[2] = mFaceArrays.get(faceIndex).vertexPoints[10 * 2];
+        vertexPoints[3] = mFaceArrays.get(faceIndex).vertexPoints[10 * 2 + 1];
 
     }
 

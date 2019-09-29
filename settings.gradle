@@ -1,5 +1,6 @@
 include ':app', ':cameralibrary', ':facedetectlibrary', ':filterlibrary', ':videolibrary', ':gdxlibrary',
         ':landmarklibrary', ':scanlibrary', ':imagelibrary', ':medialibrary', ':utilslibrary'
-include ':..:gpuimageplus_lib_cmake'
-include ':..:FaceTracker'
-
+include ':gpuimageplus_lib_cmake'
+project(':gpuimageplus_lib_cmake').projectDir = new File(settingsDir, '../NewUPink_Android/gpuimageplus_lib_cmake')
+include ':hyperlandmark'
+project(':hyperlandmark').projectDir = new File(settingsDir, '../GpuImage_Plus_Demo/hyperlandmark')

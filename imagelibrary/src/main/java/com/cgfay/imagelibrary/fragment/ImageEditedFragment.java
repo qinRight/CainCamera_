@@ -319,7 +319,7 @@ public class ImageEditedFragment extends Fragment implements View.OnClickListene
      */
     public void setImagePath(String path) {
         mImagePath = path;
-        mBitmap = BitmapFactory.decodeResource(mActivity.getResources(),R.drawable.yangmi);//BitmapUtils.getBitmapFromFile(new File(mImagePath), 0, 0, true);
+        mBitmap = BitmapFactory.decodeResource(mActivity.getResources(),R.drawable.bgview);//BitmapUtils.getBitmapFromFile(new File(mImagePath), 0, 0, true);
     }
 
     public void setImageBItmap(Bitmap bitmap) {

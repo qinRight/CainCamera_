@@ -63,14 +63,13 @@ public final class FaceTrackerWithImage {
                 float[] faceresult = facetracker.detectFaceWithResult(bitmap, 0);
 
                 // 计算人脸关键点
-                if ( faceresult.length > 0) {
+                if (faceresult != null && faceresult.length > 0) {
                     OneFace oneFace = LandmarkEngine.getInstance().getOneFace(0);
                     oneFace.vertexPoints = new float[faceresult.length];
                     for (int index = 0; index < faceresult.length / 2; index++) {
                         // 获取一个人的关键点坐标
                         oneFace.vertexPoints[index * 2] = faceresult[index * 2] / bitmap.getWidth() ;
                         oneFace.vertexPoints[index * 2 + 1] = (faceresult[index * 2 + 1] / bitmap.getHeight() );
-
                     }
                     LandmarkEngine.getInstance().putOneFace(0, oneFace);
                     LandmarkEngine.getInstance().setFaceSize(1);
